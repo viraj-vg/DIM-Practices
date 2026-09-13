@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinPulse | Global Fintech Job Aggregator & Market Intelligence</title>
+  <meta name="description" content="Search and discover elite high-paying fintech careers across Quant Trading, Web3, Neo-Banking, Payments, WealthTech, and InsurTech aggregated in real-time.">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header>
+    <nav class="navbar">
+      <a href="#" class="brand-container" id="nav-brand-logo">
+        <div class="brand-logo">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <div class="brand-info">
+          <h1>FinPulse</h1>
+          <span>Fintech Job Aggregator</span>
+        </div>
+      </a>
+
+      <div class="nav-actions">
+        <button class="nav-btn" id="btn-toggle-view" title="Toggle Market Intelligence Dashboard">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span id="view-toggle-text">Market Insights</span>
+        </button>
+
+        <button class="nav-btn" id="btn-saved-jobs" title="View Saved Jobs">
+          <i class="fa-solid fa-bookmark"></i>
+          <span>Saved</span>
+          <span class="badge-count" id="saved-count-badge">0</span>
+        </button>
+
+        <button class="nav-btn" id="btn-open-alert-modal">
+          <i class="fa-solid fa-bell"></i>
+          <span>Job Alerts</span>
+        </button>
+
+        <a href="/swagger" target="_blank" class="nav-btn" title="Open Swagger OpenAPI Documentation">
+          <i class="fa-solid fa-code"></i>
+          <span>API Docs</span>
+        </a>
+
+        <button class="nav-btn btn-primary" id="btn-refresh-cache" title="Trigger Instant Job Aggregation Refresh">
+          <i class="fa-solid fa-rotate"></i>
+          <span>Sync Openings</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Portal Section -->
+  <main id="portal-main-view">
+    
+    <!-- Hero Header & Search -->
+    <section class="hero-section">
+      <div class="hero-badge">
+        <span class="pulse-dot"></span>
+        <span>Real-Time Fintech Aggregator • 6 Global Portals Connected</span>
+      </div>
+      <h2 class="hero-title">Discover Elite <span class="gradient-text">Fintech Careers</span> in One Unified Place</h2>
+      <p class="hero-subtitle">Aggregating top opportunities from Citadel, Stripe, Two Sigma, Revolut, Coinbase, Plaid, Bloomberg, Adyen, and high-growth fintech unicorns worldwide.</p>
+
+      <!-- Search Bar -->
+      <div class="search-container">
+        <div class="search-input-group">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="input-keyword" placeholder="Job title, tech stack (e.g. C#, .NET, Python, Quant), or firm..." autocomplete="off">
+        </div>
+        <div class="search-divider"></div>
+        <div class="location-input-group">
+          <i class="fa-solid fa-location-dot"></i>
+          <input type="text" id="input-location" placeholder="City or country (e.g. New York, London, Remote)..." autocomplete="off">
+        </div>
+        <button class="search-action-btn" id="btn-submit-search">
+          <span>Search</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- Category Taxonomy Bar -->
+    <div class="category-bar-wrapper">
+      <div class="category-bar" id="category-taxonomy-bar">
+        <button class="cat-pill active" data-cat="All"><i class="fa-solid fa-globe"></i> All Sectors</button>
+        <button class="cat-pill" data-cat="QuantAndAlgorithmicTrading"><i class="fa-solid fa-chart-line"></i> Quant & HFT</button>
+        <button class="cat-pill" data-cat="PaymentsAndOpenBanking"><i class="fa-solid fa-credit-card"></i> Payments & Banking</button>
+        <button class="cat-pill" data-cat="BlockchainAndDigitalAssets"><i class="fa-solid fa-cubes"></i> Blockchain & Crypto</button>
+        <button class="cat-pill" data-cat="NeoBankingAndCoreBanking"><i class="fa-solid fa-building-columns"></i> Neo-Banking</button>
+        <button class="cat-pill" data-cat="WealthTechAndRoboAdvisory"><i class="fa-solid fa-sack-dollar"></i> WealthTech</button>
+        <button class="cat-pill" data-cat="RiskAIAndFraudDetection"><i class="fa-solid fa-brain"></i> Risk & AI</button>
+        <button class="cat-pill" data-cat="FintechDevOpsAndCloud"><i class="fa-solid fa-server"></i> Cloud & SRE</button>
+        <button class="cat-pill" data-cat="InsurTech"><i class="fa-solid fa-shield-halved"></i> InsurTech</button>
+      </div>
+    </div>
+
+    <!-- Quick Stats Banner -->
+    <section class="stats-banner" id="quick-stats-banner">
+      <div class="stat-card">
+        <div class="stat-icon green"><i class="fa-solid fa-briefcase"></i></div>
+        <div class="stat-data">
+          <h4 id="stat-total-jobs">--</h4>
+          <p>Active Fintech Roles</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon cyan"><i class="fa-solid fa-dollar-sign"></i></div>
+        <div class="stat-data">
+          <h4 id="stat-avg-salary">--</h4>
+          <p>Average Compensation</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon gold"><i class="fa-solid fa-trophy"></i></div>
+        <div class="stat-data">
+          <h4 id="stat-max-salary">--</h4>
+          <p>Highest Compensation</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple"><i class="fa-solid fa-laptop-code"></i></div>
+        <div class="stat-data">
+          <h4 id="stat-remote-pct">--%</h4>
+          <p>Remote Flexibility</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Results Grid & Filters -->
+    <div class="main-layout">
+      
+      <!-- Left Filter Sidebar -->
+      <aside class="filter-sidebar">
+        <div class="filter-header">
+          <h3><i class="fa-solid fa-sliders"></i> Filter Results</h3>
+          <button class="filter-clear-btn" id="btn-reset-filters">Reset All</button>
+        </div>
+
+        <!-- Location Type Filter -->
+        <div class="filter-group">
+          <label>Work Arrangement</label>
+          <div class="pill-options-grid" id="filter-location-types">
+            <button class="sub-pill active" data-val="All">All</button>
+            <button class="sub-pill" data-val="Remote">Remote</button>
+            <button class="sub-pill" data-val="Hybrid">Hybrid</button>
+            <button class="sub-pill" data-val="OnSite">Onsite</button>
+          </div>
+        </div>
+
+        <!-- Experience Level Filter -->
+        <div class="filter-group">
+          <label for="select-exp-level">Experience Level</label>
+          <select class="filter-select" id="select-exp-level">
+            <option value="All">All Experience Levels</option>
+            <option value="EntryLevel">Entry / Graduate</option>
+            <option value="MidLevel">Mid-Level (2-4 yrs)</option>
+            <option value="Senior">Senior (5-8 yrs)</option>
+            <option value="LeadStaff">Lead / Staff / Architect</option>
+            <option value="DirectorExecutive">Director / VP / Exec</option>
+          </select>
+        </div>
+
+        <!-- Min Salary Slider -->
+        <div class="filter-group">
+          <label for="range-salary">Minimum Salary</label>
+          <div class="range-slider-wrapper">
+            <input type="range" id="range-salary" min="0" max="400000" step="25000" value="0">
+            <div class="salary-display">
+              <span>Any</span>
+              <span id="salary-slider-val">$0k+</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tech Stack Popular Pills -->
+        <div class="filter-group">
+          <label>In-Demand Tech Skills</label>
+          <div class="pill-options-grid" id="popular-skills-pills">
+            <button class="sub-pill" data-skill="C#">C# / .NET</button>
+            <button class="sub-pill" data-skill="Python">Python</button>
+            <button class="sub-pill" data-skill="C++">C++</button>
+            <button class="sub-pill" data-skill="Rust">Rust</button>
+            <button class="sub-pill" data-skill="Go">Go</button>
+            <button class="sub-pill" data-skill="Kafka">Kafka</button>
+            <button class="sub-pill" data-skill="Kubernetes">Kubernetes</button>
+            <button class="sub-pill" data-skill="Solidity">Solidity</button>
+          </div>
+        </div>
+
+        <!-- Equity Checkbox -->
+        <div class="filter-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="check-has-equity">
+            <span>Includes Stock / Equity Grant</span>
+          </label>
+        </div>
+
+        <!-- Source Portal Filter -->
+        <div class="filter-group">
+          <label for="select-portal">Source Board / Firm</label>
+          <select class="filter-select" id="select-portal">
+            <option value="All">All Aggregated Sources</option>
+            <option value="Citadel Securities Careers">Citadel Securities</option>
+            <option value="Stripe Talent Network">Stripe Talent</option>
+            <option value="Two Sigma Careers">Two Sigma</option>
+            <option value="Coinbase Careers">Coinbase</option>
+            <option value="Revolut Careers">Revolut</option>
+            <option value="Plaid Careers">Plaid</option>
+            <option value="Bloomberg Engineering Careers">Bloomberg</option>
+            <option value="Chainalysis Careers">Chainalysis</option>
+          </select>
+        </div>
+      </aside>
+
+      <!-- Right Results Stream -->
+      <section class="results-stream">
+        <div class="results-stream-header">
+          <div class="results-info">
+            <h3 id="results-headline">Fintech Opportunities</h3>
+            <p id="results-subtext">Showing available job openings matching your criteria</p>
+          </div>
+
+          <div class="sort-container">
+            <span>Sort by:</span>
+            <select class="filter-select" id="select-sort-by" style="width: auto;">
+              <option value="newest">Newest Listed</option>
+              <option value="salary_desc">Highest Salary</option>
+              <option value="salary_asc">Lowest Salary</option>
+              <option value="relevance">Hot / Featured First</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Job Cards Container -->
+        <div class="job-cards-grid" id="job-cards-container">
+          <!-- Dynamically populated via app.js -->
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination" id="pagination-container">
+          <!-- Dynamically populated via app.js -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Market Intelligence Dashboard View (Alternative Tab) -->
+  <section class="analytics-section" id="analytics-view">
+    <div class="hero-section" style="margin-bottom: 2rem;">
+      <div class="hero-badge">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Fintech Talent & Compensation Intelligence</span>
+      </div>
+      <h2 class="hero-title">Global Fintech <span class="gradient-text">Market Benchmarks</span></h2>
+      <p class="hero-subtitle">Real-time data telemetry on median salaries, high-demand tech stacks, and fastest-growing financial sectors.</p>
+    </div>
+
+    <div class="analytics-grid">
+      <!-- Compensation by Sector -->
+      <div class="analytics-card">
+        <h3><i class="fa-solid fa-money-bill-trend-up" style="color: var(--accent-green);"></i> Salary Benchmarks by Sector</h3>
+        <div id="analytics-sector-salaries">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+
+      <!-- Top In-Demand Tech Skills -->
+      <div class="analytics-card">
+        <h3><i class="fa-solid fa-code" style="color: var(--accent-cyan);"></i> Top In-Demand Tech Stacks</h3>
+        <div id="analytics-top-skills">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+
+      <!-- Top Global Financial Hubs -->
+      <div class="analytics-card">
+        <h3><i class="fa-solid fa-earth-americas" style="color: var(--accent-gold);"></i> Leading Hiring Hubs</h3>
+        <div id="analytics-hiring-hubs">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+
+      <!-- Top Hiring Fintech Firms -->
+      <div class="analytics-card">
+        <h3><i class="fa-solid fa-building" style="color: var(--accent-purple);"></i> Most Active Fintech Employers</h3>
+        <div id="analytics-top-companies">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Job Detail Modal Dialog -->
+  <div class="modal-overlay" id="job-detail-modal">
+    <div class="modal-container">
+      <button class="modal-close-btn" id="btn-close-detail-modal"><i class="fa-solid fa-xmark"></i></button>
+      
+      <div class="modal-header">
+        <div class="company-meta">
+          <div class="company-avatar" id="modal-company-avatar">CS</div>
+          <div class="company-text">
+            <h3 id="modal-job-title">Senior Low-Latency C# Engineer</h3>
+            <p id="modal-company-name">Citadel Securities • Market Making</p>
+          </div>
+        </div>
+        <div class="job-meta-row" style="margin-top: 1rem;">
+          <span class="meta-item salary-pill" id="modal-salary-range">$320k - $550k USD</span>
+          <span class="meta-item remote-pill" id="modal-location-badge">New York, NY (Hybrid)</span>
+          <span class="meta-item" id="modal-experience-badge"><i class="fa-solid fa-user-tie"></i> Lead / Staff</span>
+          <span class="meta-item" id="modal-bonus-badge" style="color: var(--accent-gold);"><i class="fa-solid fa-gift"></i> Bonus Pool</span>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div>
+          <h4 class="modal-section-title">Role Overview</h4>
+          <p id="modal-job-description" style="color: var(--text-secondary); line-height: 1.7;"></p>
+        </div>
+
+        <div>
+          <h4 class="modal-section-title">Core Technology Stack</h4>
+          <div class="tech-tag-row" id="modal-tech-stack"></div>
+        </div>
+
+        <div>
+          <h4 class="modal-section-title">Key Responsibilities</h4>
+          <ul class="modal-list" id="modal-responsibilities"></ul>
+        </div>
+
+        <div>
+          <h4 class="modal-section-title">Qualifications & Experience</h4>
+          <ul class="modal-list" id="modal-qualifications"></ul>
+        </div>
+
+        <div>
+          <h4 class="modal-section-title">Compensation, Equity & Benefits</h4>
+          <ul class="modal-list" id="modal-benefits"></ul>
+        </div>
+
+        <div>
+          <h4 class="modal-section-title">About the Company</h4>
+          <p id="modal-company-overview" style="color: var(--text-muted); font-size: 0.9rem;"></p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <span class="portal-source" id="modal-source-portal"><i class="fa-solid fa-arrow-up-right-from-square"></i> Citadel Careers</span>
+        <div style="display: flex; gap: 0.75rem;">
+          <button class="nav-btn" id="modal-btn-bookmark"><i class="fa-regular fa-bookmark"></i> Save Job</button>
+          <a href="#" target="_blank" class="action-btn-sm" id="modal-btn-apply" style="padding: 0.6rem 1.5rem; font-size: 0.95rem;">Apply on Official Portal <i class="fa-solid fa-external-link"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Job Alert Modal -->
+  <div class="modal-overlay" id="alert-subscription-modal">
+    <div class="modal-container" style="max-width: 520px;">
+      <button class="modal-close-btn" id="btn-close-alert-modal"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-header">
+        <h3 style="font-size: 1.25rem;"><i class="fa-solid fa-bell" style="color: var(--accent-green);"></i> Create Fintech Job Alert</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Receive automated email alerts as soon as matching high-paying fintech roles are posted.</p>
+      </div>
+      <form id="form-job-alert" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+        <div>
+          <label style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Your Email Address</label>
+          <input type="email" id="alert-email" required class="filter-select" placeholder="you@hedgefund.com" style="margin-top: 0.4rem;">
+        </div>
+        <div>
+          <label style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Keywords or Target Role</label>
+          <input type="text" id="alert-keyword" class="filter-select" placeholder="e.g. C# .NET, Low Latency, Quant, Staff" style="margin-top: 0.4rem;">
+        </div>
+        <div>
+          <label style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Fintech Sector</label>
+          <select id="alert-category" class="filter-select" style="margin-top: 0.4rem;">
+            <option value="All">All Fintech Sectors</option>
+            <option value="QuantAndAlgorithmicTrading">Quant & Algorithmic Trading</option>
+            <option value="PaymentsAndOpenBanking">Payments & Open Banking</option>
+            <option value="BlockchainAndDigitalAssets">Blockchain & Digital Assets</option>
+            <option value="NeoBankingAndCoreBanking">Neo-Banking & Core Banking</option>
+            <option value="WealthTechAndRoboAdvisory">WealthTech & Robo-Advisory</option>
+            <option value="RiskAIAndFraudDetection">Risk, AI & Fraud Detection</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Minimum Target Salary (USD)</label>
+          <input type="number" id="alert-min-salary" class="filter-select" placeholder="e.g. 200000" style="margin-top: 0.4rem;">
+        </div>
+        <button type="submit" class="search-action-btn" style="justify-content: center; padding: 0.75rem; margin-top: 0.5rem;">
+          <i class="fa-solid fa-paper-plane"></i> Subscribe to Alerts
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notifications Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <strong style="color: var(--text-primary); font-size: 1rem;">FinPulse Global Careers</strong>
+          <span class="cicd-badge"><i class="fa-brands fa-docker"></i> Docker & GitHub Actions CI/CD</span>
+        </div>
+        <p>Real-time cross-market aggregator built with C# .NET 8, ASP.NET Core Web API, and Vanilla JS.</p>
+      </div>
+
+      <div class="footer-links">
+        <a href="/swagger" target="_blank"><i class="fa-solid fa-terminal"></i> OpenAPI Swagger</a>
+        <a href="/health" target="_blank"><i class="fa-solid fa-heart-pulse"></i> Health Check</a>
+        <a href="https://github.com" target="_blank"><i class="fa-brands fa-github"></i> GitHub CI/CD</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

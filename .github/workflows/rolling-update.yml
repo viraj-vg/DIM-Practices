@@ -1,0 +1,21 @@
+name: Deploying application using rolling update
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    strategy:
+      max-parallel: 1
+      matrix:
+        server:
+          - server1
+          - server2
+          - server3
+
+    steps:
+      - name: Deployment to different server
+        run: |
+          echo "Deploying application to ${{ matrix.server }}"

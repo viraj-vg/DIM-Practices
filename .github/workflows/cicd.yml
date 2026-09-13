@@ -1,0 +1,207 @@
+name: Fintech Job Portal CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Custom Docker Image Tag (optional)'
+        required: false
+        default: 'latest'
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  IMAGE_NAME: fintech-job-portal
+
+jobs:
+  # ============================================================================
+  # Stage 1: Continuous Integration - Build & Test
+  # ============================================================================
+  build-and-test:
+    name: Build & Test (.NET 8)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache NuGet Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', 'FintechJobPortal.sln') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore Dependencies
+        run: dotnet restore FintechJobPortal.sln
+
+      - name: Build Solution (Release)
+        run: dotnet build FintechJobPortal.sln -c Release --no-restore
+
+      - name: Run xUnit Unit & Integration Tests
+        run: |
+          dotnet test FintechJobPortal.sln \
+            -c Release \
+            --no-build \
+            --verbosity normal \
+            --logger "trx;LogFileName=test-results.trx" \
+            --collect:"XPlat Code Coverage"
+
+      - name: Upload Test Results Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: "**/TestResults/*.trx"
+          if-no-files-found: ignore
+
+  # ============================================================================
+  # Stage 2: Package & Publish .NET Release Binaries
+  # ============================================================================
+  package-and-publish:
+    name: Package Release Binaries
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Publish Web Application
+        run: |
+          dotnet publish src/FintechJobPortal.Web/FintechJobPortal.Web.csproj \
+            -c Release \
+            -o ./dist/publish \
+            /p:UseAppHost=false
+
+      - name: Upload Published Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fintech-job-portal-binaries
+          path: ./dist/publish
+          retention-days: 14
+
+  # ============================================================================
+  # Stage 3: Container Security Scan using Trivy
+  # ============================================================================
+  docker-security-scan:
+    name: Security Scan Container (Trivy)
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Local Container Image for Scanning
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          target: final
+          load: true
+          tags: ${{ env.IMAGE_NAME }}:security-scan
+
+      - name: Run Trivy Vulnerability Scanner (Table Output)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ env.IMAGE_NAME }}:security-scan'
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: Generate Trivy SARIF Security Report
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ env.IMAGE_NAME }}:security-scan'
+          format: 'sarif'
+          output: 'trivy-security-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy Security Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-security-report
+          path: trivy-security-results.sarif
+          retention-days: 14
+
+  # ============================================================================
+  # Stage 4: Containerize & Push to Docker Hub (Using PAT and Username)
+  # ============================================================================
+  docker-build-and-push:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    needs: [build-and-test, package-and-publish, docker-security-scan]
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract Docker Metadata (Tags & Labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' }}
+            type=sha,format=short,prefix=sha-
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=raw,value=${{ github.event.inputs.image_tag }},enable=${{ github.event.inputs.image_tag != '' }}
+
+      - name: Log in to Docker Hub (PAT)
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          target: final
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Docker Deployment Summary
+        run: |
+          echo "======================================================="
+          echo "Successfully pushed scanned container image to Docker Hub!"
+          echo "Image Tags: ${{ steps.meta.outputs.tags }}"
+          echo "======================================================="

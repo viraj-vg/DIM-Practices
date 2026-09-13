@@ -1,0 +1,33 @@
+name: Deploying application using Blue-Green Deployment
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-blue:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy application to Blue
+        run: |
+          echo "Deploying application to Blue environment"
+          echo "Blue server: server1"
+
+  deploy-green:
+    needs: deploy-blue
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy application to Green
+        run: |
+          echo "Deploying application to Green environment"
+          echo "Green server: server2"
+
+      - name: Test Green environment
+        run: |
+          echo "Testing Green environment"
+          echo "Green environment is healthy"
+
+      - name: Switch traffic to Green
+        run: |
+          echo "Switching traffic from Blue to Green"

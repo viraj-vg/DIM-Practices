@@ -1,0 +1,22 @@
+name: Canary Based Deployment
+
+on:
+  workflow_dispatch:
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy 10% traffic to new version
+        run: |
+          echo "Deploying 10% traffic to new version"
+
+      - name: Verify the deployment and monitor
+        run: |
+          echo "Monitoring application"
+          echo "Checking health and performance"
+
+      - name: Release remaining traffic
+        run: |
+          echo "Releasing remaining 90% traffic"

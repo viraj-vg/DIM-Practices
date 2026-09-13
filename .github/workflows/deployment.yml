@@ -1,0 +1,19 @@
+name: Deployment with multiple environments
+
+on:
+  workflow_dispatch:
+
+jobs:
+  Deployment:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        environment:
+          - dev
+          - qa
+          - prod
+
+    steps:
+      - name: Deployment to different environment
+        run: echo "Deploying to ${{ matrix.environment }}"

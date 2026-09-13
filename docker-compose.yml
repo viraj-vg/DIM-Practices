@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  fintech-job-portal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: final
+    container_name: finpulse-job-portal
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_HTTP_PORTS=8080
+      - Logging__LogLevel__Default=Information
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
